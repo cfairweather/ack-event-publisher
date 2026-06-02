@@ -131,7 +131,7 @@ func (r *runnable) discover(ctx context.Context) error {
 		}
 
 		inf := r.mgr.factory.ForResource(gvr).Informer()
-		if _, err := inf.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		if _, err := inf.AddEventHandler(cache.ResourceEventHandlerDetailedFuncs{
 			AddFunc:    r.mgr.handler.OnAdd,
 			UpdateFunc: r.mgr.handler.OnUpdate,
 			DeleteFunc: r.mgr.handler.OnDelete,
