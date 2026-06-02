@@ -1,7 +1,8 @@
 image:
-  repository: ghcr.io/aws-controllers-k8s/ack-event-publisher
-  # Defaults to Chart.AppVersion when empty.
-  tag: ""
+  repository: ghcr.io/cfairweather/ack-event-publisher
+  # Defaults to Chart.AppVersion when empty. Use "latest" for the most recent
+  # main-branch build, or a specific "sha-<commit>" tag for a pinned version.
+  tag: "latest"
   pullPolicy: IfNotPresent
   pullSecrets: []
 

@@ -36,12 +36,36 @@ Events:
 | `ACK.ReferencesResolved` | Normal / Warning | `ReferencesResolved` / `ReferenceUnresolved` |
 | `ACK.Adopted` | Normal / Warning | `ResourceAdopted` / `AdoptionFailed` |
 
+## Artifacts
+
+| Artifact | Location |
+|---|---|
+| Container image | `ghcr.io/cfairweather/ack-event-publisher:latest` |
+| Helm chart (OCI) | `ghcr.io/cfairweather/charts/ack-event-publisher` |
+
+Images and charts are published automatically on every push to `main`. Each build produces:
+- A `sha-<short-commit>` image tag for pinned deployments
+- A `latest` image tag tracking the most recent build
+- A Helm chart version `0.1.0-<short-commit>`
+
 ## Installation
 
-### Helm (recommended)
+### Helm from OCI registry (recommended)
 
 ```bash
-helm install ack-event-publisher ./helm \
+# Install latest build
+helm install ack-event-publisher \
+  oci://ghcr.io/cfairweather/charts/ack-event-publisher \
+  --namespace ack-system \
+  --create-namespace
+```
+
+Pin to a specific build:
+
+```bash
+helm install ack-event-publisher \
+  oci://ghcr.io/cfairweather/charts/ack-event-publisher \
+  --version 0.1.0-<short-sha> \
   --namespace ack-system \
   --create-namespace
 ```
@@ -49,7 +73,8 @@ helm install ack-event-publisher ./helm \
 Watch a single namespace only:
 
 ```bash
-helm install ack-event-publisher ./helm \
+helm install ack-event-publisher \
+  oci://ghcr.io/cfairweather/charts/ack-event-publisher \
   --namespace ack-system \
   --set watchNamespace=my-app
 ```
@@ -57,9 +82,18 @@ helm install ack-event-publisher ./helm \
 Enable debug logging:
 
 ```bash
-helm install ack-event-publisher ./helm \
+helm install ack-event-publisher \
+  oci://ghcr.io/cfairweather/charts/ack-event-publisher \
   --namespace ack-system \
   --set log.level=debug
+```
+
+### From source
+
+```bash
+helm install ack-event-publisher ./helm \
+  --namespace ack-system \
+  --create-namespace
 ```
 
 ### Verify
