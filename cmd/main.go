@@ -12,6 +12,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
+	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	"github.com/aws-controllers-k8s/ack-event-publisher/pkg/config"
 	"github.com/aws-controllers-k8s/ack-event-publisher/pkg/discovery"
@@ -59,7 +60,9 @@ func main() {
 	}
 
 	mgr, err := ctrl.NewManager(restCfg, ctrl.Options{
-		MetricsBindAddress:      cfg.MetricsBindAddress,
+		Metrics: metricsserver.Options{
+			BindAddress: cfg.MetricsBindAddress,
+		},
 		HealthProbeBindAddress:  cfg.HealthProbeBindAddress,
 		LeaderElection:          cfg.LeaderElect,
 		LeaderElectionID:        "ack-event-publisher.services.k8s.aws",
