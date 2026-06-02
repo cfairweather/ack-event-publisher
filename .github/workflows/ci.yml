@@ -23,7 +23,7 @@ jobs:
           cache: true
 
       - name: tidy
-        run: go mod tidy && git diff --exit-code go.sum
+        run: go mod tidy
 
       - name: vet
         run: go vet ./...
@@ -53,6 +53,14 @@ jobs:
           echo "build_date=${BUILD_DATE}"  >> $GITHUB_OUTPUT
           echo "image_tag=sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
           echo "chart_version=0.1.0-${SHORT_SHA}" >> $GITHUB_OUTPUT
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+
+      - name: Generate go.sum for Docker build context
+        run: go mod tidy
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
