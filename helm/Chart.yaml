@@ -1,0 +1,21 @@
+apiVersion: v2
+name: ack-event-publisher
+description: >
+  Companion controller that watches all ACK-managed resources and publishes
+  Kubernetes Events on status condition transitions, enabling kubectl describe
+  and kubectl get events workflows for AWS Controllers for Kubernetes.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - aws
+  - ack
+  - kubernetes
+  - events
+  - controllers
+home: https://github.com/aws-controllers-k8s/ack-event-publisher
+sources:
+  - https://github.com/aws-controllers-k8s/ack-event-publisher
+maintainers:
+  - name: AWS Controllers for Kubernetes Contributors
+    url: https://github.com/aws-controllers-k8s

@@ -1,0 +1,56 @@
+image:
+  repository: ghcr.io/aws-controllers-k8s/ack-event-publisher
+  # Defaults to Chart.AppVersion when empty.
+  tag: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+deployment:
+  replicas: 1
+  containerPort: 8080
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 50m
+    limits:
+      memory: 128Mi
+      cpu: 100m
+  nodeSelector:
+    kubernetes.io/os: linux
+  tolerations: []
+  affinity: {}
+
+serviceAccount:
+  create: true
+  name: ack-event-publisher
+  # Annotations applied to the ServiceAccount. Use this to attach an EKS IRSA
+  # role annotation if the controller ever needs AWS API access in the future.
+  annotations: {}
+
+log:
+  # Set to true to enable zap development encoder (colorised console output,
+  # debug threshold). Equivalent to --enable-development-logging.
+  enable_development_logging: false
+  # Log verbosity: debug, info, warn, error.
+  level: info
+
+# How often to re-discover ACK CRDs and register informers for any newly
+# installed ACK service controllers. Accepts Go duration strings (e.g. 10m, 1h).
+resyncPeriod: 10m
+
+# Namespace to watch for ACK resources. Empty string watches all namespaces.
+watchNamespace: ""
+
+leaderElection:
+  enabled: false
+  # Namespace for the leader election lease. Defaults to the controller namespace.
+  namespace: ""
+
+metrics:
+  service:
+    create: false
+    port: 8080
+
+# Labels to add to all RBAC resources created by this chart.
+role:
+  labels: {}

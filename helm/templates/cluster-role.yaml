@@ -1,0 +1,27 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "ack-event-publisher.fullname" . }}
+  labels:
+    {{- include "ack-event-publisher.labels" . | nindent 4 }}
+    {{- with .Values.role.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+rules:
+  # Discover which CRDs are ACK-managed by listing all CRDs and filtering on
+  # the .services.k8s.aws API group suffix.
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["get", "list", "watch"]
+
+  # Watch all resources in any ACK service API group. A wildcard is required
+  # here because the set of installed ACK services is not known at deploy time;
+  # the controller discovers them dynamically at runtime.
+  - apiGroups: ["*.services.k8s.aws"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+
+  # Create and patch Kubernetes Events on behalf of watched ACK resources.
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch", "update"]

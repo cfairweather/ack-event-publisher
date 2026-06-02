@@ -1,0 +1,19 @@
+ACK Event Publisher has been deployed.
+
+The controller is watching all resources in API groups matching *.services.k8s.aws
+and will publish Kubernetes Events on every status condition transition.
+
+To verify it is running:
+
+  kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/name=ack-event-publisher
+
+To see events published for an ACK resource:
+
+  kubectl describe <resource-kind> <resource-name> -n <namespace>
+
+  # Or list all events from this controller:
+  kubectl get events --field-selector reportingComponent=ack-event-publisher -A
+
+Log level is set to: {{ .Values.log.level }}
+Watch namespace: {{ if .Values.watchNamespace }}{{ .Values.watchNamespace }}{{ else }}all namespaces{{ end }}
+Leader election: {{ .Values.leaderElection.enabled }}

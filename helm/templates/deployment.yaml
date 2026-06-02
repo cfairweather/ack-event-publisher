@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ack-event-publisher.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "ack-event-publisher.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ack-event-publisher.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "ack-event-publisher.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "ack-event-publisher.serviceAccountName" . }}
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+      containers:
+        - name: controller
+          image: {{ include "ack-event-publisher.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/ko-app/ack-event-publisher"]
+          args:
+            - --log-level={{ .Values.log.level }}
+            - --enable-development-logging={{ .Values.log.enable_development_logging }}
+            - --watch-namespace={{ .Values.watchNamespace }}
+            - --resync-period={{ .Values.resyncPeriod }}
+            - --metrics-bind-address=:{{ .Values.deployment.containerPort }}
+            - --health-probe-bind-address=:8081
+            - --leader-elect={{ .Values.leaderElection.enabled }}
+            {{- if .Values.leaderElection.namespace }}
+            - --leader-election-namespace={{ .Values.leaderElection.namespace }}
+            {{- end }}
+          env:
+            - name: ACK_EVENT_PUBLISHER_LOG_LEVEL
+              value: {{ .Values.log.level | quote }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.deployment.containerPort }}
+              protocol: TCP
+            - name: health
+              containerPort: 8081
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.deployment.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      {{- with .Values.deployment.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.deployment.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.deployment.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
