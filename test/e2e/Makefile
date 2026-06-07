@@ -84,6 +84,64 @@ test-clean:
 # Full end-to-end: infra + wait + setup + run. Useful for CI pipelines.
 test-all: test-infra test-infra-wait test-setup test-run
 
+## Docker targets ───────────────────────────────────────────────────────────
+## Run any test target inside a container with ~/.aws mounted.
+## Prerequisites: docker, AWS credentials in ~/.aws
+
+TEST_IMAGE ?= ack-event-publisher-test
+
+docker-build-test:
+	docker build -f Dockerfile.test -t $(TEST_IMAGE) .
+
+docker-test-infra: docker-build-test
+	docker run --rm \
+	  -v "$(HOME)/.aws:/root/.aws:ro" \
+	  -e AWS_REGION=$(AWS_REGION) \
+	  -e STACK_NAME=$(STACK_NAME) \
+	  $(TEST_IMAGE) test-infra
+
+docker-test-infra-wait: docker-build-test
+	docker run --rm \
+	  -v "$(HOME)/.aws:/root/.aws:ro" \
+	  -e AWS_REGION=$(AWS_REGION) \
+	  -e STACK_NAME=$(STACK_NAME) \
+	  $(TEST_IMAGE) test-infra-wait
+
+docker-test-infra-destroy: docker-build-test
+	docker run --rm -it \
+	  -v "$(HOME)/.aws:/root/.aws:ro" \
+	  -e AWS_REGION=$(AWS_REGION) \
+	  -e STACK_NAME=$(STACK_NAME) \
+	  $(TEST_IMAGE) test-infra-destroy
+
+docker-test-setup: docker-build-test
+	docker run --rm \
+	  -v "$(HOME)/.aws:/root/.aws:ro" \
+	  -e AWS_REGION=$(AWS_REGION) \
+	  -e STACK_NAME=$(STACK_NAME) \
+	  $(TEST_IMAGE) test-setup
+
+docker-test-run: docker-build-test
+	docker run --rm \
+	  -v "$(HOME)/.aws:/root/.aws:ro" \
+	  -e AWS_REGION=$(AWS_REGION) \
+	  -e STACK_NAME=$(STACK_NAME) \
+	  $(TEST_IMAGE) test-run
+
+docker-test-clean: docker-build-test
+	docker run --rm \
+	  -v "$(HOME)/.aws:/root/.aws:ro" \
+	  -e AWS_REGION=$(AWS_REGION) \
+	  -e STACK_NAME=$(STACK_NAME) \
+	  $(TEST_IMAGE) test-clean
+
+docker-test-all: docker-build-test
+	docker run --rm \
+	  -v "$(HOME)/.aws:/root/.aws:ro" \
+	  -e AWS_REGION=$(AWS_REGION) \
+	  -e STACK_NAME=$(STACK_NAME) \
+	  $(TEST_IMAGE) test-all
+
 help:
 	@grep -E '^[a-zA-Z_-]+:' Makefile | \
 		awk -F: '{printf "  %-25s\n", $$1}' | sort

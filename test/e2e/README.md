@@ -54,6 +54,41 @@ Layer 3 — kubectl (requires controllers from Layer 2)
 
 ## Running the tests
 
+Two methods are available: **native** (tools installed locally) or **Docker** (no local tooling required beyond Docker and AWS credentials).
+
+### Docker method (recommended)
+
+Requires only Docker and AWS credentials in `~/.aws`. All tools (aws CLI, helm, kubectl) run inside the container.
+
+```bash
+cd test/e2e
+
+# Build the test image once
+make docker-build-test
+
+# Deploy AWS infrastructure
+make docker-test-infra AWS_REGION=us-east-1
+make docker-test-infra-wait AWS_REGION=us-east-1
+
+# Install Helm charts
+make docker-test-setup AWS_REGION=us-east-1
+
+# Run the test
+make docker-test-run AWS_REGION=us-east-1
+
+# Or run everything in one shot
+make docker-test-all AWS_REGION=us-east-1
+```
+
+Cleanup:
+
+```bash
+make docker-test-clean AWS_REGION=us-east-1           # remove k8s resources only
+make docker-test-infra-destroy AWS_REGION=us-east-1   # delete cluster + VPC
+```
+
+### Native method
+
 ### Step 1 — Deploy AWS infrastructure
 
 ```bash
