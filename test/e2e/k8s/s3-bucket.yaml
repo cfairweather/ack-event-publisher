@@ -1,0 +1,13 @@
+apiVersion: s3.services.k8s.aws/v1alpha1
+kind: Bucket
+metadata:
+  # Bucket names must be globally unique. The setup script substitutes
+  # BUCKET_NAME with a value that includes the AWS account ID and region.
+  name: ack-event-publisher-test
+  namespace: default
+  annotations:
+    # Prevent ACK from deleting the bucket when this resource is deleted,
+    # so test teardown doesn't risk data loss if the bucket has contents.
+    services.k8s.aws/deletion-policy: retain
+spec:
+  name: "${BUCKET_NAME}"
