@@ -123,6 +123,22 @@ kubectl get events -A --field-selector reportingComponent=ack-event-publisher
 All flags can also be set via environment variables prefixed with `ACK_EVENT_PUBLISHER_`
 (e.g. `ACK_EVENT_PUBLISHER_LOG_LEVEL=debug`).
 
+## Testing
+
+End-to-end tests verify event publishing against a real EKS cluster using the
+ACK S3 controller as the test subject. See **[test/e2e/README.md](test/e2e/README.md)**
+for full instructions.
+
+Quick start:
+
+```bash
+cd test/e2e
+make test-infra AWS_REGION=us-east-1   # deploy EKS Auto Mode cluster via CloudFormation
+make test-infra-wait AWS_REGION=us-east-1
+make test-setup AWS_REGION=us-east-1   # install ACK S3 + ack-event-publisher via Helm
+make test-run AWS_REGION=us-east-1     # apply test Bucket resource and verify events
+```
+
 ## Building
 
 ```bash

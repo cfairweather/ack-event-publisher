@@ -242,12 +242,11 @@ Resources:
           - !Ref PublicSubnet2
         EndpointPublicAccess: true
         EndpointPrivateAccess: true
-      # Enable EKS Auto Mode
+      # Enable EKS Auto Mode. The general-purpose and system node pools are
+      # enabled by default when Auto Mode is on; NodePools is omitted here
+      # to rely on those defaults rather than restating them explicitly.
       ComputeConfig:
         Enabled: true
-        NodePools:
-          - general-purpose
-          - system
         NodeRoleArn: !GetAtt NodeRole.Arn
       StorageConfig:
         BlockStorage:
