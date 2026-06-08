@@ -1,34 +1,23 @@
-FROM ubuntu:24.04
+FROM public.ecr.aws/aws-cli/aws-cli:latest
 
 ARG HELM_VERSION=3.17.3
 ARG KUBECTL_VERSION=1.32.0
-# aws CLI v2 is installed via the official installer (always latest v2)
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates \
-      curl \
-      unzip \
-      gettext-base \
+# helm + kubectl + envsubst + make
+RUN yum install -y --allowerasing \
+      tar \
+      gzip \
+      gettext \
       make \
-      bash \
-      git \
-    && rm -rf /var/lib/apt/lists/*
-
-# aws CLI v2
-RUN curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip" \
-      -o /tmp/awscli.zip && \
-    unzip -q /tmp/awscli.zip -d /tmp && \
-    /tmp/aws/install && \
-    rm -rf /tmp/awscli.zip /tmp/aws
+    && yum clean all
 
 # helm
-RUN curl -fsSL "https://get.helm.sh/helm-v${HELM_VERSION}-linux-$(dpkg --print-architecture).tar.gz" \
-      | tar -xz --strip-components=1 -C /usr/local/bin linux-$(dpkg --print-architecture)/helm
+RUN curl -fsSL "https://get.helm.sh/helm-v${HELM_VERSION}-linux-$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" \
+      | tar -xz --strip-components=1 -C /usr/local/bin \
+          "linux-$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')/helm"
 
 # kubectl
-RUN curl -fsSL "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/$(dpkg --print-architecture)/kubectl" \
+RUN curl -fsSL "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')/kubectl" \
       -o /usr/local/bin/kubectl && \
     chmod +x /usr/local/bin/kubectl
 
